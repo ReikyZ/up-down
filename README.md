@@ -33,4 +33,13 @@ go install ./cmd/up
 up ./example.png
 ```
 
+To choose the installed command name, use the Make target:
+
+```sh
+make install COMMAND=upload
+upload ./example.png
+```
+
+It installs the binary to `GOBIN`, or to `GOPATH/bin` when `GOBIN` is not set. The chosen directory must be in `PATH`.
+
 The command prints the public URL returned by the server.
