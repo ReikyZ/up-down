@@ -28,6 +28,7 @@ chmod +x scripts/up-server.sh
 ```
 
 The script writes its PID and logs under `run/`.
+It checks whether `LISTEN_ADDR` is available before starting and reports the occupied address without creating a stale PID file.
 
 The server accepts `POST /upload` multipart requests with a `file` field and exposes uploads at `GET /files/<filename>`. Upload bodies are streamed directly to disk, subject to `MAX_UPLOAD_BYTES`. Before and after each upload, it checks available filesystem capacity. When it is below `MIN_FREE_BYTES` (1 GiB by default), it deletes the oldest uploaded files until the threshold is restored. Upload writes and cleanup are serialized so concurrent uploads cannot race the retention process.
 

@@ -217,7 +217,10 @@ def main():
     except ValueError as error:
         parser.error(str(error))
     host, port = _listen_address(arguments.listen)
-    http_server = ThreadingHTTPServer((host, port), UploadHandler)
+    try:
+        http_server = ThreadingHTTPServer((host, port), UploadHandler)
+    except OSError as error:
+        parser.error("cannot listen on {0}: {1}".format(arguments.listen, error))
     http_server.storage = UploadStorage(string_env("UPLOAD_DIR", "./uploads"), min_free)
     http_server.max_upload_bytes = max_upload
     http_server.logger = logging.getLogger("up-down")
