@@ -42,6 +42,8 @@ class ServerTest(unittest.TestCase):
         response, body = self._request("POST", "/upload", payload, {"Content-Type": "multipart/form-data; boundary=" + boundary})
         self.assertEqual(200, response.status)
         result = json.loads(body.decode("utf-8"))
+        self.assertEqual("example.txt", result["filename"])
+        self.assertEqual("/files/example.txt", result["url"])
         response, body = self._request("GET", result["url"])
         self.assertEqual(200, response.status)
         self.assertEqual(b"file contents", body)

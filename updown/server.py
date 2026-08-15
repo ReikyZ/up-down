@@ -45,6 +45,9 @@ class UploadHandler(BaseHTTPRequestHandler):
         except InsufficientStorageError as error:
             self._send_text(507, "storage is full: {0}".format(error))
             return
+        except ValueError as error:
+            self._send_text(400, str(error))
+            return
         except OSError:
             self._send_text(500, "could not save upload")
             return
