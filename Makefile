@@ -1,12 +1,12 @@
 COMMAND ?= up
-BIN_DIR := $(shell go env GOBIN)
+BIN_DIR ?= $(HOME)/.local/bin
 
-ifeq ($(strip $(BIN_DIR)),)
-BIN_DIR := $(shell go env GOPATH)/bin
-endif
-
-.PHONY: install
+.PHONY: install test
 
 install:
 	mkdir -p "$(BIN_DIR)"
-	go build -o "$(BIN_DIR)/$(COMMAND)" ./cmd/up
+	printf '%s\n' '#!/bin/sh' 'exec python3 "$(CURDIR)/cmd/up.py" "$$@"' > "$(BIN_DIR)/$(COMMAND)"
+	chmod 755 "$(BIN_DIR)/$(COMMAND)"
+
+test:
+	python3 -m unittest discover -s tests -v
