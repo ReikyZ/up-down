@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -36,4 +37,19 @@ func LoadDotEnv(path string) error {
 		}
 	}
 	return scanner.Err()
+}
+
+func StringEnv(key, fallback string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return fallback
+}
+
+func UintEnv(key string, fallback uint64) (uint64, error) {
+	value := os.Getenv(key)
+	if value == "" {
+		return fallback, nil
+	}
+	return strconv.ParseUint(value, 10, 64)
 }

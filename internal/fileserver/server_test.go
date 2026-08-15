@@ -73,3 +73,45 @@ func TestOldestFileSelectsOldestUpload(t *testing.T) {
 		t.Fatalf("oldestFile() = %q, want %q", selected, oldest)
 	}
 }
+
+func TestUploadRejectsMissingFile(t *testing.T) {
+	server, err := New(Config{UploadDir: t.TempDir(), MaxUploadBytes: 1024})
+	if err != nil {
+		t.Fatal(err)
+	}
+	request := httptest.NewRequest(http.MethodPost, "/upload", bytes.NewBufferString("--boundary--\r\n"))
+	request.Header.Set("Content-Type", "multipart/form-data; boundary=boundary")
+	response := httptest.NewRecorder()
+
+	server.Handler().ServeHTTP(response, request)
+
+	if response.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want %d", response.Code, http.StatusBadRequest)
+	}
+}
+
+func TestUploadRejectsPayloadOverLimit(t *testing.T) {
+	server, err := New(Config{UploadDir: t.TempDir(), MaxUploadBytes: 128})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var body bytes.Buffer
+	writer := multipart.NewWriter(&body)
+	part, err := writer.CreateFormFile("file", "large.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, _ = part.Write(bytes.Repeat([]byte("x"), 512))
+	if err := writer.Close(); err != nil {
+		t.Fatal(err)
+	}
+	request := httptest.NewRequest(http.MethodPost, "/upload", &body)
+	request.Header.Set("Content-Type", writer.FormDataContentType())
+	response := httptest.NewRecorder()
+
+	server.Handler().ServeHTTP(response, request)
+
+	if response.Code != http.StatusRequestEntityTooLarge {
+		t.Fatalf("status = %d, want %d", response.Code, http.StatusRequestEntityTooLarge)
+	}
+}
