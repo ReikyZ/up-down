@@ -18,6 +18,17 @@ cp .env.example .env
 python3 cmd/up-server.py
 ```
 
+To manage it in the background:
+
+```sh
+chmod +x scripts/up-server.sh
+./scripts/up-server.sh start
+./scripts/up-server.sh status
+./scripts/up-server.sh stop
+```
+
+The script writes its PID and logs under `run/`.
+
 The server accepts `POST /upload` multipart requests with a `file` field and exposes uploads at `GET /files/<filename>`. Upload bodies are streamed directly to disk, subject to `MAX_UPLOAD_BYTES`. Before and after each upload, it checks available filesystem capacity. When it is below `MIN_FREE_BYTES` (1 GiB by default), it deletes the oldest uploaded files until the threshold is restored. Upload writes and cleanup are serialized so concurrent uploads cannot race the retention process.
 
 The server handles `SIGINT` and `SIGTERM` with a graceful shutdown. Use `GET /healthz` for a liveness probe; it returns `204 No Content`.
