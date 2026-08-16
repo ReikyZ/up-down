@@ -9,7 +9,6 @@ from urllib.parse import urlsplit
 
 from updown.config import load_dotenv, string_env
 
-
 def upload(server_url, file_path):
     target = urlsplit(server_url)
     if target.scheme not in ("http", "https") or not target.netloc:
@@ -64,11 +63,16 @@ def _multipart_prefix(boundary, filename):
 
 def main():
     parser = argparse.ArgumentParser(prog="up", description="Upload a file to an up-down server")
+    parser.add_argument("--server", help="upload server URL")
     parser.add_argument("file")
     arguments = parser.parse_args()
     load_dotenv(".env")
+    load_dotenv(str(Path(sys.argv[0]).resolve().parent / ".env"))
     try:
-        print(upload(string_env("SERVER_URL", ""), arguments.file))
+        server_url = arguments.server or string_env("SERVER_URL", "")
+        if not server_url:
+            raise ValueError("SERVER_URL is required; set it in .env or pass --server")
+        print(upload(server_url, arguments.file))
     except (OSError, RuntimeError, ValueError) as error:
         print("up: {0}".format(error), file=sys.stderr)
         return 1

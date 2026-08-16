@@ -1,6 +1,7 @@
 .env
 uploads/
 bin/
+dist/
 run/
 __pycache__/
 *.py[cod]
