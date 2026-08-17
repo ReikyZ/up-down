@@ -67,17 +67,10 @@ curl -i http://localhost:8080/healthz
 make build-client
 ```
 
-在 `dist/up` 同目录创建客户端配置：
+构建会将项目根目录 `.env` 中的 `SERVER_URL` 编译进 `dist/up`。也可在构建时显式指定：
 
 ```sh
-cp .env.client.example dist/.env
-```
-
-编辑 `dist/.env`：
-
-```dotenv
-# 服务端对当前客户端可访问的公共地址。
-SERVER_URL=https://upload.example.com
+make build-client SERVER_URL=https://upload.example.com
 ```
 
 上传文件：
@@ -96,6 +89,7 @@ SERVER_URL=https://upload.example.com
 2. 环境变量 `SERVER_URL`。
 3. 当前工作目录的 `.env`。
 4. `up` 可执行文件同目录的 `.env`。
+5. 构建时嵌入的 `SERVER_URL`。
 
 示例：
 
@@ -110,7 +104,7 @@ SERVER_URL=https://upload.example.com ./dist/up ./example.png
 SERVER_URL=https://upload.example.com python3 cmd/up.py ./example.png
 ```
 
-## 安装源码客户端
+## 安装客户端
 
 将源码客户端安装为命令启动器：
 
@@ -119,4 +113,4 @@ make install
 up ./example.png
 ```
 
-默认安装目录为 `~/.local/bin`。可使用 `BIN_DIR=/your/bin` 指定安装目录，使用 `COMMAND=upload` 指定命令名。安装后的命令通过当前目录 `.env` 或 `SERVER_URL` 环境变量读取服务端地址。
+默认安装目录为 `~/.local/bin`。可使用 `BIN_DIR=/your/bin` 指定安装目录，使用 `COMMAND=upload` 指定命令名。安装命令会复制已编译的客户端，并内嵌构建时的服务端地址。

@@ -9,6 +9,12 @@ from urllib.parse import urlsplit
 
 from updown.config import load_dotenv, string_env
 
+try:
+    from updown.build_config import DEFAULT_SERVER_URL
+except ImportError:
+    DEFAULT_SERVER_URL = ""
+
+
 def upload(server_url, file_path):
     target = urlsplit(server_url)
     if target.scheme not in ("http", "https") or not target.netloc:
@@ -69,9 +75,9 @@ def main():
     load_dotenv(".env")
     load_dotenv(str(Path(sys.argv[0]).resolve().parent / ".env"))
     try:
-        server_url = arguments.server or string_env("SERVER_URL", "")
+        server_url = arguments.server or string_env("SERVER_URL", DEFAULT_SERVER_URL)
         if not server_url:
-            raise ValueError("SERVER_URL is required; set it in .env or pass --server")
+            raise ValueError("SERVER_URL is required; build with SERVER_URL, set it in .env, or pass --server")
         print(upload(server_url, arguments.file))
     except (OSError, RuntimeError, ValueError) as error:
         print("up: {0}".format(error), file=sys.stderr)
